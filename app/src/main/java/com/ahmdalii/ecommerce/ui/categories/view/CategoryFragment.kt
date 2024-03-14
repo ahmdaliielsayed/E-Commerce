@@ -1,12 +1,13 @@
 package com.ahmdalii.ecommerce.ui.categories.view
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.ahmdalii.ecommerce.databinding.FragmentCategoryBinding
 import com.ahmdalii.ecommerce.ui.categories.viewmodel.CategoriesViewModel
 import com.ahmdalii.ecommerce.utils.ConnectionLiveData
@@ -15,7 +16,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class CategoryFragment : Fragment() {
 
-    private lateinit var myView: View
     private var _binding: FragmentCategoryBinding? = null
 
     private val binding get() = _binding!!
@@ -34,7 +34,6 @@ class CategoryFragment : Fragment() {
         initiateAdapter()
 
         binding.lifecycleOwner = this
-        binding.viewModel = categoriesViewModel
 
         return binding.root
     }
@@ -50,8 +49,9 @@ class CategoryFragment : Fragment() {
 
         categoriesViewModel.navigateToSelectedCategory.observe(viewLifecycleOwner) { categoryName ->
             categoryName?.let {
-                Toast.makeText(requireContext(), "navigate to $categoryName", Toast.LENGTH_LONG).show()
-//                findNavController(myView).navigate(R.id.)
+                findNavController().navigate(
+                    CategoryFragmentDirections.actionCategoryFragmentToProductFragment(categoryName)
+                )
                 categoriesViewModel.onCategoryItemNavigated()
             }
         }
@@ -61,7 +61,14 @@ class CategoryFragment : Fragment() {
         }
 
         categoriesViewModel.categoriesResponse.observe(viewLifecycleOwner) { categoryList ->
-            adapter.submitList(categoryList)
+            if (categoryList.isEmpty()) {
+                binding.txtEmptyPage.visibility = View.VISIBLE
+                binding.recyclerView.visibility = View.GONE
+            } else {
+                adapter.submitList(categoryList)
+                binding.txtEmptyPage.visibility = View.GONE
+                binding.recyclerView.visibility = View.VISIBLE
+            }
         }
 
         categoriesViewModel.progressLoading.observe(viewLifecycleOwner) { loading ->
@@ -80,13 +87,5 @@ class CategoryFragment : Fragment() {
             }
         )
         binding.recyclerView.adapter = adapter
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        myView = view
-
-        categoriesViewModel.getLocalCategories()
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.ahmdalii.ecommerce.data.local.AppDatabase
 import com.ahmdalii.ecommerce.data.local.CategoryDao
+import com.ahmdalii.ecommerce.data.local.ProductDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,6 +19,11 @@ object DatabaseModule {
     @Provides
     fun provideCategoryDao(appDatabase: AppDatabase): CategoryDao {
         return appDatabase.categoryDao()
+    }
+
+    @Provides
+    fun provideProductDao(appDatabase: AppDatabase): ProductDao {
+        return appDatabase.productDao()
     }
 
     @Provides
