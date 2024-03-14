@@ -38,6 +38,11 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
+    private var _noResult = MutableLiveData<Boolean>()
+    val noResult: LiveData<Boolean> = _noResult
+
+    private var productsList: List<Product> = emptyList()
+
     fun getProductsFromRemote(categoryName: String) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             _repo.getAllProductsFromRemote(categoryName)
@@ -64,6 +69,7 @@ class ProductsViewModel @Inject constructor(
                 }
                 .collect { result ->
                     _productsResponse.postValue(result)
+                    productsList = result
                 }
         }
     }
@@ -74,5 +80,20 @@ class ProductsViewModel @Inject constructor(
 
     fun onProductItemNavigated() {
         _navigateToSelectedProductDetails.value = null
+    }
+
+    fun searchForProduct(name: String) {
+        viewModelScope.launch {
+            val productsSearchResult: List<Product> = productsList.filter { item ->
+                item.title.contains(name, ignoreCase = true)
+            }
+
+            if (productsSearchResult.isEmpty()) {
+                _noResult.value = true
+            } else {
+                _noResult.value = false
+                _productsResponse.value = productsSearchResult
+            }
+        }
     }
 }

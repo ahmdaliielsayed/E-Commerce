@@ -3,5 +3,6 @@
 
     <string name="network_connection_lost">Network Connection Lost!</string>
     <string name="check_connection">Check your connection settings \n and try again</string>
-    <string name="empty_page">Empty Page</string>
+    <string name="no_result">No results found</string>
+    <string name="search_with_product_name">Search with product name</string>
 </resources>

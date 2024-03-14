@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -70,8 +71,20 @@ class ProductFragment : Fragment() {
             if (productList.isEmpty()) {
                 binding.txtEmptyPage.visibility = View.VISIBLE
                 binding.recyclerView.visibility = View.GONE
+                binding.textInputLayout.visibility = View.GONE
             } else {
                 adapter.submitList(productList)
+                binding.txtEmptyPage.visibility = View.GONE
+                binding.recyclerView.visibility = View.VISIBLE
+                binding.textInputLayout.visibility = View.VISIBLE
+            }
+        }
+
+        productsViewModel.noResult.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.txtEmptyPage.visibility = View.VISIBLE
+                binding.recyclerView.visibility = View.GONE
+            } else {
                 binding.txtEmptyPage.visibility = View.GONE
                 binding.recyclerView.visibility = View.VISIBLE
             }
@@ -99,5 +112,12 @@ class ProductFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         productsViewModel.getLocalProducts(args.categoryName)
+        listenOnSearchText()
+    }
+
+    private fun listenOnSearchText() {
+        binding.txtInputEditTextSearch.addTextChangedListener {
+            productsViewModel.searchForProduct(it.toString())
+        }
     }
 }
