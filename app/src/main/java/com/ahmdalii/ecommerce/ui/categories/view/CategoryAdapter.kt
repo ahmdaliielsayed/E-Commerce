@@ -24,7 +24,7 @@ class CategoryAdapter(
         }
     }
 
-    class ViewHolder private constructor(val binding: RowCategoryBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder private constructor(private val binding: RowCategoryBinding) : RecyclerView.ViewHolder(binding.root) {
 
         companion object {
             fun from(parent: ViewGroup): ViewHolder {

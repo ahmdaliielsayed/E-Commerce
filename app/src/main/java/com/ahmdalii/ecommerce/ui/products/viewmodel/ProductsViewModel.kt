@@ -1,10 +1,11 @@
-package com.ahmdalii.ecommerce.ui.categories.viewmodel
+package com.ahmdalii.ecommerce.ui.products.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ahmdalii.ecommerce.domain.repository.ICategoriesRepo
+import com.ahmdalii.ecommerce.data.model.Product
+import com.ahmdalii.ecommerce.domain.repository.IProductsRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -14,12 +15,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CategoriesViewModel @Inject constructor(
-    private val _repo: ICategoriesRepo
+class ProductsViewModel @Inject constructor(
+    private val _repo: IProductsRepo
 ) : ViewModel() {
 
-    private var _categoriesResponse = MutableLiveData<List<String>>()
-    val categoriesResponse: LiveData<List<String>> = _categoriesResponse
+    private var _productsResponse = MutableLiveData<List<Product>>()
+    val productsResponse: LiveData<List<Product>> = _productsResponse
 
     private var _progressLoading = MutableLiveData<Boolean>()
     val progressLoading: LiveData<Boolean> = _progressLoading
@@ -27,8 +28,8 @@ class CategoriesViewModel @Inject constructor(
     private var _errorMessageResponse = MutableLiveData<String>()
     val errorMessageResponse: LiveData<String> = _errorMessageResponse
 
-    private var _navigateToSelectedCategory = MutableLiveData<String?>()
-    val navigateToSelectedCategory: LiveData<String?> = _navigateToSelectedCategory
+    private var _navigateToSelectedProductDetails = MutableLiveData<Product?>()
+    val navigateToSelectedProductDetails: LiveData<Product?> = _navigateToSelectedProductDetails
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         run {
@@ -37,13 +38,9 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
-    init {
-        getLocalCategories()
-    }
-
-    fun getCategoriesFromRemote() {
+    fun getProductsFromRemote(categoryName: String) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            _repo.getAllCategoriesFromRemote()
+            _repo.getAllProductsFromRemote(categoryName)
                 .onStart {
                     _progressLoading.postValue(true)
                 }
@@ -59,23 +56,23 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
-    private fun getLocalCategories() {
+    fun getLocalProducts(categoryName: String) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            _repo.getLocalCategories()
+            _repo.getLocalProducts(categoryName)
                 .catch {
                     _errorMessageResponse.postValue(it.message)
                 }
                 .collect { result ->
-                    _categoriesResponse.postValue(result)
+                    _productsResponse.postValue(result)
                 }
         }
     }
 
-    fun onCategoryItemClicked(categoryName: String) {
-        _navigateToSelectedCategory.value = categoryName
+    fun onProductItemClicked(product: Product) {
+        _navigateToSelectedProductDetails.value = product
     }
 
-    fun onCategoryItemNavigated() {
-        _navigateToSelectedCategory.value = null
+    fun onProductItemNavigated() {
+        _navigateToSelectedProductDetails.value = null
     }
 }
